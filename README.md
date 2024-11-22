@@ -1,5 +1,5 @@
-# AquaGPT
-**AquaGPT** est un projet ESPHome pour surveiller les paramètres d'un aquarium d'eau de mer.  
+# aquamonitgpt
+**aquamonitgpt** est un projet ESPHome pour surveiller les paramètres d'un aquarium d'eau de mer.  
 
 ## Fonctionnalités
 - Lecture des données de pH, ORP, température et conductivité.
