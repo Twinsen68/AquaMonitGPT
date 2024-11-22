@@ -96,3 +96,21 @@ select:
             if (id(select_command_orp).state == "Effacer Calibration") {
               id(orp_ezo).clear_calibration();
             }
+
+  - platform: template
+    name: "ORP - Command Select"
+    id: select_command_orp
+    optimistic: true
+    entity_category: "Config"
+    options:  # Liste des choix pour le menu déroulant
+      - "Lire"
+      - "Information"
+      - "Status"
+      - "Vérifier Calibration"
+      - "Calibration @ 225 mV"
+      - "Effacer Calibration"
+    initial_option: "Vérifier Calibration"
+    set_action:
+      - logger.log:
+          format: "Commande sélectionnée : %s"
+          args: ["x.c_str()"]
