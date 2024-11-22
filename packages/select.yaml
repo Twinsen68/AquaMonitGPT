@@ -53,23 +53,6 @@ select:
           format: "Commande sélectionnée : %s"
           args: ["x.c_str()"]  # Remplace %s par la commande sélectionnée.
 
-  # Lecture des données du capteur ORP
-  - platform: template
-    name: "ORP - Lire"  # Nom du bouton.
-    id: read_orp  # Identifiant unique.
-    icon: mdi:read  # Icône affichée dans Home Assistant.
-    entity_category: "Config"  # Catégorie de configuration.
-    on_press:
-      then:
-        - lambda: |-
-            byte error;
-            id(orp_ezo).send_custom("R");  // Commande pour lire les données ORP.
-            error = Wire.endTransmission();
-            if (error == 0) {
-              id(orp_ezo).send_custom("R");  // Envoie la commande de lecture.
-            } else {
-              ESP_LOGW("custom_orp_read", "Pas de capteur ORP à cette adresse: ${addORP}!");
-
   # Envoi de la commande sélectionnée au capteur ORP
   - platform: template
     name: "ORP - Commande sélectionnée envoyée"  # Nom du bouton.
