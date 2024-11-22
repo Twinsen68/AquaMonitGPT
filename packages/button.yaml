@@ -139,6 +139,7 @@ button:
             if (id(select_command_orp).state == "Effacer Calibration") {
               id(orp_ezo).clear_calibration();
             }
+            
   - platform: template
     id: update_firmware
     name: Update aquamonitgpt Firmware - Released (Experimental - ESP32)

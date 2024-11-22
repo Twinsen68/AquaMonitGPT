@@ -1,10 +1,3 @@
-substitutions:
-  name: aquapi
-  friendly_name: AquaPi
-
-packages:
-  twinsen68.aquapigpt : github://Twinsen68/aquamonitgpt/config.yaml@main
-
 esphome:
   min_version: 2024.6.0
   name: "${name}"
@@ -15,6 +8,9 @@ esphome:
     version: "2.0.0"
   platform: esp32
   board: esp32dev
+
+packages:
+  twinsen68.aquapigpt : github://Twinsen68/aquamonitgpt/config.yaml@main
 
 api:
   encryption:
