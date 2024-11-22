@@ -1,0 +1,98 @@
+# Configuration des services API pour la gestion du capteur EC
+api:
+  encryption:
+    key: tBHSAVjYJjdf5o9Q4po3p/0U6YppKXuMnIdaUpjNkoY=
+
+  services:
+# Service pour lecture continue de la conductivité
+    - service: ec_read_continous
+      then:
+        - repeat:
+            count: 60  # Répète la lecture 60 fois.
+            then:
+              - button.press: read_ec  # Appuie sur le bouton pour lire la valeur EC.
+              - delay: 1s  # Attends 1 seconde entre chaque lecture.
+
+    # Service pour calibrer le capteur à sec
+    - service: ec_calibrate_dry
+      then:
+        - lambda: |-
+            id(ec_ezo).send_custom("Cal,dry");
+
+    # Service pour calibrer le capteur avec une solution basse (12880 μS/cm)
+    - service: ec_calibrate_low_12880
+      then:
+        - lambda: |-
+            id(ec_ezo).send_custom("Cal,low,12880");
+
+    # Service pour calibrer le capteur avec une solution haute (80000 μS/cm)
+    - service: ec_calibrate_high_80000
+      then:
+        - lambda: |-
+            id(ec_ezo).send_custom("Cal,high,80000");
+
+    # Exemple pour ajouter un service avec une commande personnalisée (commenté ici)
+    # - service: ezo_ec_custom_command
+    #   variables:
+    #     command: string  # Accepte une chaîne de commande.
+    #   then:
+    #     - lambda: |-
+    #         id(ec_ezo).send_custom(command);
+
+# Lecture continue du pH
+    - service: ph_read_continous
+      then:
+        - repeat:
+            count: 60  # Effectue 60 lectures.
+            then:
+              - button.press: read_ph  # Appuie sur le bouton pour lire le pH.
+              - delay: 1s  # Attends 1 seconde entre chaque lecture.
+
+    # Calibration du pH à 7.00 (point moyen)
+    - service: ph_calibrate_mid_7
+      then:
+        - lambda: |-
+            id(ph_ezo).set_calibration_point_mid(7.00);
+
+    # Calibration du pH à 4.00 (point bas)
+    - service: ph_calibrate_low_4
+      then:
+        - lambda: |-
+            id(ph_ezo).set_calibration_point_low(4.00);
+
+    # Calibration du pH à 10.00 (point haut)
+    - service: ph_calibrate_high_10
+      then:
+        - lambda: |-
+            id(ph_ezo).set_calibration_point_high(10.00);
+
+    # Exemple d’ajout d’une commande personnalisée (commentée par défaut)
+    # - service: ezo_ph_custom_command
+    #   variables:
+    #     command: string
+    #   then:
+    #     - lambda: |-
+    #         id(ph_ezo).send_custom(command);
+
+# Lecture continue des données ORP
+    - service: orp_read_continous
+      then:
+        - repeat:
+            count: 60  # Effectue 60 lectures consécutives.
+            then:
+              - button.press: read_orp  # Appuie sur le bouton pour lire les données ORP.
+              - delay: 1s  # Attends 1 seconde entre chaque lecture.
+
+    # Calibration ORP à 225 mV
+    - service: orp_calibrate_225
+      then:
+        - lambda: |-
+            id(orp_ezo).send_custom("Cal,225");
+
+    # Exemple d’ajout d’une commande personnalisée (commentée par défaut)
+    # - service: ezo_orp_custom_command
+    #   variables:
+    #     command: string
+    #   then:
+    #     - lambda: |-
+    #         id(orp_ezo).send_custom(command);

@@ -1,0 +1,8 @@
+update:
+  - platform: http_request
+    name: AquaGPT Firmware Update
+    update_interval: "${update_firmware_sensor_interval}"
+    id: update_firmware_sensor
+    entity_category: 'diagnostic'
+    icon: mdi:update
+    source: https://twinsen68.github.io/AquaGPT/bin/ota/aquagpt-esp32.ota.md5

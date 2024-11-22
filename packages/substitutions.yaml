@@ -1,0 +1,51 @@
+# Fichier des variables globales (substitutions)
+# Centralisation des paramètres réutilisables dans tout le projet.
+
+substitutions:
+  # Informations générales du projet
+  name: "aquapigpt"  # Nom du projet, utilisé comme identifiant unique.
+  friendly_name: "aquapigpt"  # Nom affiché dans l'interface utilisateur.
+  app_version: "2.0.0"  # Version actuelle du projet pour suivi.
+  import_config: "true"  # Variable indiquant si la configuration complète est importée.
+  logger: "DEBUG"  # Niveau de journalisation pour le débogage.
+
+  # Pins pour le bus I2C
+  sdaPin: "21"  # GPIO pour SDA (données) du bus I2C.
+  sclPin: "22"  # GPIO pour SCL (horloge) du bus I2C.
+
+  # Pins pour les capteurs de température Dallas
+  dallasPin: "16"  # GPIO pour le bus OneWire des capteurs Dallas.
+  update_temp: "60s"  # Fréquence de mise à jour des sondes Dallas.
+
+  # Calibration pour les capteurs Dallas
+  cal_0: "0.0"  # Point de calibration pour 0°C.
+  cal_100: "100.0"  # Point de calibration pour 100°C.
+
+  # Pins pour les capteurs optiques (niveau d'eau)
+  opticalLowPin: "33"  # GPIO pour le capteur de niveau bas.
+  opticalHighPin: "32"  # GPIO pour le capteur de niveau haut.
+  update_water: "60s"  # Intervalle de mise à jour des capteurs de niveau d'eau.
+
+  # Pin pour le relais de l'électrovanne
+  relayPin: "25"  # GPIO utilisé pour contrôler l'électrovanne.
+
+  # Paramètres pour le capteur de débit
+  flowSensorPin: "26"  # GPIO connecté au capteur de débit d'eau.
+  pulses_per_litre: "450"  # Nombre d'impulsions pour mesurer 1 litre d'eau.
+  update_interval: "10s"  # Fréquence de mise à jour des mesures de débit.
+
+  # Adresse I2C et mise à jour pour le capteur de pH
+  addPH: "99"  # Adresse I2C du capteur pH.
+  update_ph: "60s"  # Intervalle de mise à jour pour les données du capteur pH.
+
+  # Adresse I2C et mise à jour pour le capteur de conductivité (EC)
+  addEC: "100"  # Adresse I2C du capteur EC.
+  update_ec: "60s"  # Fréquence de mise à jour des données EC.
+  update_button_ec: "60s"  # Fréquence de mise à jour pour les boutons associés.
+
+  # Adresse I2C et mise à jour pour le capteur ORP
+  addORP: "98"  # Adresse I2C du capteur ORP (potentiel d'oxydoréduction).
+  update_orp: "60s"  # Intervalle de mise à jour des données ORP.
+
+  # Intervalle pour vérifier les mises à jour du firmware
+  update_firmware_sensor_interval: 6h

@@ -1,0 +1,17 @@
+substitutions:
+  name: aquapi
+  friendly_name: AquaPi
+packages:
+  twinsen68.aquapigpt : github://Twinsen68/aquagpt/config.yaml@gh-pages
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+api:
+  encryption:
+    key: tBHSAVjYJjdf5o9Q4po3p/0U6YppKXuMnIdaUpjNkmY=
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

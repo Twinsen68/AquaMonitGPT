@@ -1,0 +1,21 @@
+substitutions:
+  name: aquaquapigptapi
+  friendly_name: aquapigpt
+
+# Inclusion des différents fichiers packages
+# Chaque package contient une partie spécifique de la configuration
+packages:
+  substitutions: !include packages/substitutions.yaml  # Variables globales
+  wifi: !include packages/wifi.yaml  # Configuration réseau (Wi-Fi)
+  logger: !include packages/logger.yaml  # Configuration des logs
+  i2c: !include packages/i2c.yaml  # Configuration I2C
+  sensors: !include packages/sensors.yaml  # Capteurs (température, pH, etc.)
+  binary_sensors: !include packages/binary_sensors.yaml  # Capteurs binaires (niveaux d'eau)
+  switches: !include packages/switches.yaml  # Relais (électrovanne)
+  templates: !include packages/templates.yaml  # États calculés
+  time: !include packages/time.yaml  # Synchronisation horaire
+  update: !include packages/update.yaml  # Gestion des mises à jour
+  button: !include packages/button.yaml  # Boutons pour actions spécifiques
+  interval: !include packages/interval.yaml  # Actions périodiques
+  select: !include packages/select.yaml  # Commandes pour capteurs spécifiques
+  http_request: !include packages/http_request.yaml  # Paramètres HTTP

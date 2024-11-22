@@ -1,0 +1,15 @@
+# Configuration des bus I2C et OneWire
+# Le bus I2C est utilisé pour communiquer avec des capteurs comme le pH, ORP, et EC.
+# Le bus OneWire est utilisé pour les capteurs Dallas (température).
+
+# Configuration du bus I2C
+i2c:
+  sda: ${sdaPin}  # Pin SDA pour la communication I2C.
+  scl: ${sclPin}  # Pin SCL pour la communication I2C.
+  scan: true  # Recherche automatique des adresses des capteurs connectés.
+  id: bus_a  # Identifiant du bus I2C (réutilisable dans d'autres fichiers).
+
+# Configuration du bus OneWire
+one_wire:
+  - platform: gpio
+    pin: ${dallasPin}  # Pin GPIO utilisée pour les capteurs Dallas.

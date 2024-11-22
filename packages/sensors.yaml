@@ -1,0 +1,205 @@
+# Configuration des capteurs
+# Ce fichier configure les capteurs de température, débit, pH, conductivité (EC), et ORP.
+
+sensor:
+  # Température de l'eau (Dallas)
+  - platform: dallas_temp  # Plateforme pour les sondes Dallas (OneWire).
+    update_interval: ${update_temp}  # Fréquence de mise à jour.
+    address: 0x01  # Adresse unique du capteur sur le bus OneWire.
+    name: "Température de l'eau"  # Nom affiché dans l'interface utilisateur.
+    id: water_temperature  # Identifiant unique.
+    filters:
+      - calibrate_linear:  # Calibration linéaire pour ajuster les mesures.
+          method: least_squares
+          datapoints:
+            - 0.0 -> ${cal_0}  # Point de calibration à 0°C.
+            - 100.0 -> ${cal_100}  # Point de calibration à 100°C.
+
+  # Température extérieure
+  - platform: template  # Capteur basé sur une valeur fixe ou calculée.
+    name: "Température extérieure"
+    id: outdoor_temperature
+    unit_of_measurement: "°C"  # Unité de mesure.
+    lambda: |-
+      return 25.0;  # Simule une valeur fixe, remplaçable par un capteur réel.
+
+ # Capteur de pH (EZO)
+  - platform: ezo
+    icon: mdi:ph  # Icône pour le pH dans Home Assistant.
+    name: "pH"  # Nom du capteur.
+    id: ph_ezo  # Identifiant unique.
+    address: ${addPH}  # Adresse I2C pour le capteur pH.
+    unit_of_measurement: ""  # Le pH est sans unité.
+    accuracy_decimals: 2  # Précision des mesures.
+    update_interval: "${update_ph}"  # Intervalle de mise à jour défini dans substitutions.yaml.
+    state_class: "measurement"  # Type de mesure.
+    device_class: PH  # Classe du capteur.
+    on_custom:
+      then:
+        - lambda: id(result_ph).publish_state(x);
+    on_calibration:
+      then:
+        - lambda: id(result_ph).publish_state(x);
+    on_device_information:
+      then:
+        - lambda: id(result_ph).publish_state(x);
+    on_slope:
+      then:
+        - lambda: id(result_ph).publish_state(x);
+    on_t:
+      then:
+        - lambda: id(result_ph).publish_state(x);
+
+  # pH Minimum sur 24h
+  - platform: template  # Capteur basé sur une valeur calculée.
+    name: "pH Minimum - 24h"
+    id: ph_min_24h
+    unit_of_measurement: ""  # Unité vide.
+    accuracy_decimals: 2  # Précision des données.
+    icon: mdi:arrow-down  # Icône affichée dans Home Assistant.
+    state_class: measurement  # Classe d'état indiquant une mesure continue.
+    lambda: |-
+      return NAN;  # Initialement non défini.
+
+  # pH Maximum sur 24h
+  - platform: template  # Capteur basé sur une valeur calculée.
+    name: "pH Maximum - 24h"
+    id: ph_max_24h
+    unit_of_measurement: ""  # Unité vide.
+    accuracy_decimals: 2  # Précision des données.
+    icon: mdi:arrow-up  # Icône affichée dans Home Assistant.
+    state_class: measurement  # Classe d'état indiquant une mesure continue.
+    lambda: |-
+      return NAN;  # Initialement non défini.
+
+  # Conductivité (EZO)
+  - platform: ezo  # Plateforme pour le capteur Atlas Scientific (EZO).
+    icon: mdi:shaker-outline  # Icône affichée dans Home Assistant.
+    name: "Conductivité"
+    id: ec_ezo
+    address: ${addEC}  # Adresse I2C du capteur (définie dans substitutions.yaml).
+    unit_of_measurement: "mS/cm"  # Mesure en millisiemens par cm.
+    accuracy_decimals: 2  # Précision des mesures.
+    update_interval: "${update_ec}"  # Fréquence de mise à jour.
+    state_class: "measurement"  # Indique une mesure continue.
+    device_class: "volatile_organic_compounds_parts"  # Classe du capteur.
+    filters:
+      - lambda: return (x / 1000);  # Convertit les données en mS/cm.
+    on_custom:  # Action personnalisée déclenchée par une commande.
+      then:
+        - lambda: id(raw_value_ec).publish_state(x);
+    on_calibration:  # Action après calibration.
+      then:
+        - lambda: id(result_ec).publish_state(x);
+    on_device_information:  # Action après demande d'informations sur le capteur.
+      then:
+        - lambda: id(result_ec).publish_state(x);
+    on_t:  # Action liée à une mesure spécifique.
+      then:
+        - lambda: id(result_ec).publish_state(x);
+
+  # TDS (Total Dissolved Solids)
+  - platform: template
+    name: "TDS"
+    id: sensor_tds
+    unit_of_measurement: "g/L"  # Total des solides dissous (grammes par litre).
+    icon: mdi:water-opacity
+    accuracy_decimals: 2
+    disabled_by_default: true
+    update_interval: "${update_ec}"
+    state_class: "measurement"
+    lambda: |-
+      std::string str = id(raw_value_ec).state;  // Données brutes EC.
+      std::vector<std::string> v;
+      char * token;
+      char seps[] = ",";
+      token = strtok (&str[0], seps);
+      while (token != NULL) {
+        v.push_back(token);
+        token = strtok (NULL, seps);
+      }
+      if (v.size() == 4) {
+        return (std::stof(v[1]) / 1000);  // Convertit la valeur TDS.
+      } 
+      else {
+        return NAN;
+      }
+
+  # Salinité
+  - platform: template
+    name: "Salinité"
+    id: sensor_salinity
+    icon: mdi:shaker-outline
+    unit_of_measurement: "ppt"  # Salinité en parties par millier.
+    accuracy_decimals: 2
+    update_interval: "${update_ec}"
+    state_class: "measurement"
+    lambda: |-
+      std::string str = id(raw_value_ec).state;  // Données brutes EC.
+      std::vector<std::string> v;
+      char * token;
+      char seps[] = ",";
+      token = strtok (&str[0], seps);
+      while (token != NULL) {
+        v.push_back(token);
+        token = strtok (NULL, seps);
+      }
+      if (v.size() == 4) {
+        return std::stof(v[2]);  // Extrait la valeur de salinité.
+      } 
+      else {
+        return NAN;
+      }
+
+  # Densité Spécifique
+  - platform: template
+    name: "Densité Spé"
+    id: sensor_specific_gravity
+    icon: mdi:cup-water
+    unit_of_measurement: ""  # Pas d'unité pour la densité spécifique.
+    accuracy_decimals: 3
+    update_interval: "${update_ec}"
+    state_class: "measurement"
+    lambda: |-
+      std::string str = id(raw_value_ec).state;  // Données brutes EC.
+      std::vector<std::string> v;
+      char * token;
+      char seps[] = ",";
+      token = strtok (&str[0], seps);
+      while (token != NULL) {
+        v.push_back(token);
+        token = strtok (NULL, seps);
+      }
+      if (v.size() == 4) {
+        return std::stof(v[3]);  // Extrait la densité spécifique.
+      } 
+      else {
+        return NAN;
+      }
+
+  # Capteur ORP (EZO)
+  - platform: ezo  # Plateforme pour les capteurs Atlas Scientific EZO.
+    icon: mdi:react  # Icône affichée dans Home Assistant.
+    name: "ORP"  # Nom du capteur.
+    id: orp_ezo  # Identifiant unique pour ce capteur.
+    address: ${addORP}  # Adresse I2C du capteur définie dans substitutions.yaml.
+    unit_of_measurement: "mV"  # Mesures en millivolts.
+    accuracy_decimals: 1  # Précision des mesures.
+    update_interval: "${update_orp}"  # Intervalle de mise à jour défini dans substitutions.yaml.
+    state_class: "measurement"  # Indique une mesure continue.
+    device_class: voltage  # Classe du capteur.
+    on_custom:  # Action déclenchée par une commande personnalisée.
+      then:
+        - lambda: id(result_orp).publish_state(x);
+    on_calibration:  # Action exécutée après une calibration.
+      then:
+        - lambda: id(result_orp).publish_state(x);
+    on_device_information:  # Action déclenchée lors d'une demande d'information.
+      then:
+        - lambda: id(result_orp).publish_state(x);
+    on_slope:  # Action associée à une mesure spécifique.
+      then:
+        - lambda: id(result_orp).publish_state(x);
+    on_t:  # Autre action spécifique (par exemple, température intégrée au capteur).
+      then:
+        - lambda: id(result_orp).publish_state(x);

@@ -1,0 +1,48 @@
+# Configuration des capteurs basés sur des templates
+# Les templates permettent de définir des états personnalisés à partir de calculs
+# ou de conditions, en utilisant les données des capteurs.
+
+binary_sensor:
+  # Température critique
+  - platform: template  # Capteur basé sur un calcul.
+    name: "Température critique"  # Nom affiché dans l'interface utilisateur.
+    id: critical_temperature  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si la température de l'eau est hors des limites acceptables.
+      float temp = id(water_temperature).state;  // Température mesurée par le capteur Dallas.
+      return (temp < 22.0 || temp > 30.0);  // Retourne "actif" si hors limites.
+    device_class: problem  # Classe indiquant un problème.
+
+  # Température optimale
+  - platform: template  # Capteur basé sur un calcul.
+    name: "Température optimale"  # Nom affiché dans l'interface utilisateur.
+    id: optimal_temperature  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si la température de l'eau est dans une plage idéale.
+      float temp = id(water_temperature).state;  // Température de l'eau.
+      float outdoor_temp = id(outdoor_temperature).state;  // Température extérieure simulée.
+      if (outdoor_temp > 20.0) {
+        return (temp >= 24.0 && temp <= 27.0);  // Plage optimale si température extérieure > 20°C.
+      }
+      return (temp >= 23.0 && temp <= 24.0);  // Plage optimale sinon.
+    device_class: safety  # Classe indiquant un état sécurisé.
+
+  # État critique du pH
+  - platform: template  # Capteur basé sur un calcul.
+    name: "pH Critique"  # Nom affiché dans l'interface utilisateur.
+    id: ph_critical  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si le pH est hors des limites acceptables.
+      float ph = id(ph_ezo).state;  // pH mesuré par le capteur EZO.
+      return (ph < 7.8 || ph > 8.4);  // Retourne "actif" si hors limites.
+    device_class: problem  # Classe indiquant un problème.
+
+  # État optimal du pH
+  - platform: template  # Capteur basé sur un calcul.
+    name: "pH Optimal"  # Nom affiché dans l'interface utilisateur.
+    id: ph_optimal  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si le pH est dans une plage idéale.
+      float ph = id(ph_ezo).state;  // pH mesuré par le capteur EZO.
+      return (ph >= 7.8 && ph <= 8.4);  // Retourne "actif" si dans les limites.
+    device_class: safety  # Classe indiquant un état sécurisé.

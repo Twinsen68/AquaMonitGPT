@@ -1,0 +1,17 @@
+# Configuration des relais et interrupteurs
+# Ce fichier configure les composants permettant de contrôler des dispositifs physiques,
+# comme l'électrovanne utilisée pour ajuster le niveau d'eau.
+
+# Définition d'une sortie GPIO pour le relais
+output:
+  - platform: gpio  # Plateforme pour les sorties GPIO.
+    pin: ${relayPin}  # GPIO utilisé pour connecter le relais.
+    id: relais_valve  # Identifiant unique pour cette sortie GPIO.
+
+# Configuration d'un interrupteur pour contrôler l'électrovanne
+switch:
+  - platform: output  # Plateforme basée sur une sortie GPIO.
+    name: "Électrovanne"  # Nom affiché dans l'interface utilisateur.
+    output: relais_valve  # Relie cet interrupteur à la sortie définie ci-dessus.
+    id: electrovanne  # Identifiant unique pour cet interrupteur.
+    restore_mode: RESTORE_DEFAULT_OFF  # Définit l'état initial (éteint après redémarrage).

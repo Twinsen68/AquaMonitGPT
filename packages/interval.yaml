@@ -1,0 +1,16 @@
+# Configuration des intervalles d'exécution
+# Ce fichier configure les actions qui doivent être exécutées périodiquement.
+
+interval:
+  # Mise à jour régulière des lectures brutes du capteur EC
+  - interval: "${update_button_ec}"  # Intervalle défini dans substitutions.yaml.
+    then:
+      - button.press: read_ec  # Appuie sur le bouton pour lire la valeur EC.
+  # Mise à jour régulière des lectures du capteur pH
+  - interval: "${update_ph}"  # Intervalle défini dans substitutions.yaml.
+    then:
+      - button.press: read_ph  # Appuie sur le bouton pour lire la valeur pH.
+  # Mise à jour régulière des lectures du capteur ORP
+  - interval: "${update_orp}"  # Intervalle défini dans substitutions.yaml.
+    then:
+      - button.press: read_orp  # Appuie sur le bouton pour lire les données ORP.

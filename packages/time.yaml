@@ -1,0 +1,16 @@
+# Configuration des composants liés au temps
+# Ce fichier configure la synchronisation horaire et les intervalles d'exécution.
+
+time:
+  # Synchronisation SNTP (Simple Network Time Protocol)
+  - platform: sntp  # Plateforme pour synchroniser l'heure via Internet.
+    id: sntp_time  # Identifiant unique pour cet horodatage.
+
+interval:
+  # Réinitialisation des valeurs min/max du pH toutes les 24 heures
+  - interval: 24h  # Déclenche une action toutes les 24 heures.
+    then:
+      - lambda: |-
+          // Réinitialise les valeurs minimales et maximales du pH.
+          id(ph_min_24h).publish_state(NAN);  // Efface la valeur minimale.
+          id(ph_max_24h).publish_state(NAN);  // Efface la valeur maximale.

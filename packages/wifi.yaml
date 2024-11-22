@@ -1,0 +1,20 @@
+# Configuration Wi-Fi pour ESPHome
+# Ce fichier gère la connexion au réseau principal ainsi que le mode fallback (point d'accès AP).
+
+wifi:
+  # Configuration du réseau principal
+  ssid: "Votre_SSID"  # Nom du réseau Wi-Fi auquel se connecter.
+  password: "Votre_Mot_De_Passe"  # Mot de passe du réseau Wi-Fi.
+
+  # Configuration du mode fallback
+  # Ce mode s'active si la connexion au réseau principal échoue.
+  ap:
+    ssid: "AquapiGPT"  # Nom du point d'accès (AP) créé par l'appareil.
+    password: "MotDePasse_AP"  # Mot de passe pour se connecter à cet AP.
+
+  # Options avancées de la connexion
+  fast_connect: true  # Active la connexion rapide (utile pour les réseaux cachés ou avec clé pré-partagée).
+  manual_ip:
+    static_ip: 192.168.1.100  # Adresse IP fixe pour l'appareil sur le réseau principal.
+    gateway: 192.168.1.1  # Passerelle réseau (souvent l'adresse du routeur).
+    subnet: 255.255.255.0  # Masque de sous-réseau pour la configuration réseau.

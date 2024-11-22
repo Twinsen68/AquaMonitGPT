@@ -1,0 +1,98 @@
+# Configuration des entités de sélection
+# Cette entité permet de choisir une commande à envoyer au capteur EC.
+
+select:
+  - platform: template  # Plateforme pour une entité de sélection personnalisée.
+    name: "EC - Command Select"  # Nom affiché dans l'interface utilisateur.
+    id: select_command_ec  # Identifiant unique pour cette entité.
+    optimistic: true  # Permet de mettre à jour la sélection sans attendre la confirmation du capteur.
+    entity_category: "Config"  # Catégorie d'entité (configuration).
+    options:  # Liste des commandes disponibles pour l'utilisateur.
+      - "Lire"
+      - "Information"
+      - "Status"
+      - "Obtenir valeur K sonde"
+      - "Obtenir Valeur TDS"
+      - "Convert. TDS en NaCl - 0.48"
+      - "Obt. Paramètres"
+      - "Definir Sonde K1"
+      - "Sortie Valeurs - Toutes (Par déf.)"
+      - "Sortie Valeurs - Conductivité"
+      - "Sortie Valeurs - Salinité"
+      - "Sortie Valeurs - Densité Spé"
+      - "Sortie Valeurs - TDS"
+      - "Ctrl Calibration"
+      - "Calibration @ sec"
+      - "Calibration @ basse = 12880"
+      - "Calibration @ haute = 80000"
+      - "Effacer calibration"
+    initial_option: "Ctrl Calibration"  # Option par défaut sélectionnée.
+    set_action:  # Action exécutée lorsqu'une option est sélectionnée.
+      - logger.log:
+          format: "Commande sélectionnée : %s"  # Message affiché dans les logs.
+          args: ["x.c_str()"]  # Remplace %s par la commande sélectionnée.
+
+  - platform: template
+    name: "pH - Command Select"  # Nom de l’entité de sélection.
+    id: select_command_ph  # Identifiant unique.
+    optimistic: true  # Permet de mettre à jour sans attendre la confirmation.
+    entity_category: "Config"  # Catégorie de configuration.
+    options:  # Liste des commandes disponibles pour le capteur pH.
+      - "Lire"
+      - "Information"
+      - "Status"
+      - "Obtenir ° Précision"
+      - "Vérifier calibration"
+      - "Calibration @ moyenne = 7"
+      - "Calibration @ basse = 4"
+      - "Calibration @ haute = 10"
+      - "Effacer calibration"
+    initial_option: "Vérifier calibration"  # Option par défaut sélectionnée.
+    set_action:
+      - logger.log:
+          format: "Commande sélectionnée : %s"
+          args: ["x.c_str()"]  # Remplace %s par la commande sélectionnée.
+
+  # Lecture des données du capteur ORP
+  - platform: template
+    name: "ORP - Lire"  # Nom du bouton.
+    id: read_orp  # Identifiant unique.
+    icon: mdi:read  # Icône affichée dans Home Assistant.
+    entity_category: "Config"  # Catégorie de configuration.
+    on_press:
+      then:
+        - lambda: |-
+            byte error;
+            id(orp_ezo).send_custom("R");  // Commande pour lire les données ORP.
+            error = Wire.endTransmission();
+            if (error == 0) {
+              id(orp_ezo).send_custom("R");  // Envoie la commande de lecture.
+            } else {
+              ESP_LOGW("custom_orp_read", "Pas de capteur ORP à cette adresse: ${addORP}!");
+
+  # Envoi de la commande sélectionnée au capteur ORP
+  - platform: template
+    name: "ORP - Commande sélectionnée envoyée"  # Nom du bouton.
+    id: send_selected_orp  # Identifiant unique.
+    entity_category: "Config"  # Catégorie de configuration.
+    on_press:
+      then:
+        - lambda: |-
+            if (id(select_command_orp).state == "Lire") {
+              id(orp_ezo).send_custom("R");
+            }
+            if (id(select_command_orp).state == "Information") {
+              id(orp_ezo).get_device_information();
+            }
+            if (id(select_command_orp).state == "Status") {
+              id(orp_ezo).send_custom("Status");
+            }
+            if (id(select_command_orp).state == "Vérifier Calibration") {
+              id(orp_ezo).get_calibration();
+            }
+            if (id(select_command_orp).state == "Calibration @ 225 mV") {
+              id(orp_ezo).send_custom("Cal,225");
+            }
+            if (id(select_command_orp).state == "Effacer Calibration") {
+              id(orp_ezo).clear_calibration();
+            }

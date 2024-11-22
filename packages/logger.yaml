@@ -1,0 +1,5 @@
+# Configuration du système de journalisation (logs)
+# Les logs permettent de suivre les événements de l'appareil et de déboguer les problèmes.
+
+logger:
+  level: "${logger}"  # Niveau de journalisation (DEBUG, INFO, WARN, ERROR).

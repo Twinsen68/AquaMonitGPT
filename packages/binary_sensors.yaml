@@ -1,0 +1,126 @@
+# Configuration des capteurs binaires
+# Ce fichier contient la configuration des capteurs qui fournissent des états binaires
+# (par exemple, niveaux d'eau, états critiques).
+
+binary_sensor:
+  # Capteur de niveau d'eau bas
+  - platform: gpio  # Plateforme GPIO utilisée pour un capteur binaire.
+    pin: ${opticalLowPin}  # GPIO connecté au capteur de niveau bas.
+    name: "Capteur niveau bas"  # Nom affiché dans l'interface utilisateur.
+    id: os_low  # Identifiant unique pour ce capteur.
+    device_class: "moisture"  # Classe de capteur définissant son type (humidité/niveau d'eau).
+    on_state:
+      # Actions à effectuer lorsque l'état change.
+      then:
+        - if:
+            condition:
+              binary_sensor.is_off: os_low  # Si le niveau est bas (capteur inactif).
+            then:
+              - switch.turn_on: electrovanne  # Active l'électrovanne pour ajouter de l'eau.
+        - if:
+            condition:
+              binary_sensor.is_on: os_low  # Si le niveau est normal (capteur actif).
+            then:
+              - switch.turn_off: electrovanne  # Désactive l'électrovanne.
+
+  # Capteur de niveau d'eau haut
+  - platform: gpio  # Plateforme GPIO utilisée pour un capteur binaire.
+    pin: ${opticalHighPin}  # GPIO connecté au capteur de niveau haut.
+    name: "Capteur niveau haut"  # Nom affiché dans l'interface utilisateur.
+    id: os_high  # Identifiant unique pour ce capteur.
+    device_class: "moisture"  # Classe de capteur définissant son type (humidité/niveau d'eau).
+
+  # Température critique
+  - platform: template  # Capteur basé sur un état calculé via un template.
+    name: "Température critique"  # Nom affiché dans l'interface utilisateur.
+    id: critical_temperature  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si la température de l'eau est hors des limites acceptables.
+      float temp = id(water_temperature).state;
+      return (temp < 22.0 || temp > 30.0);  // Retourne "actif" si hors limites.
+    device_class: problem  # Classe définissant le capteur comme un indicateur de problème.
+
+  # Température optimale
+  - platform: template  # Capteur basé sur un état calculé via un template.
+    name: "Température optimale"  # Nom affiché dans l'interface utilisateur.
+    id: optimal_temperature  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si la température de l'eau est dans une plage optimale.
+      float temp = id(water_temperature).state;
+      float outdoor_temp = id(outdoor_temperature).state;
+      if (outdoor_temp > 20.0) return (temp >= 24.0 && temp <= 27.0);
+      return (temp >= 23.0 && temp <= 24.0);
+    device_class: safety  # Classe définissant le capteur comme un indicateur de sécurité.
+
+  # État critique du pH
+  - platform: template  # Capteur basé sur un état calculé via un template.
+    name: "pH Critique"  # Nom affiché dans l'interface utilisateur.
+    id: ph_critical  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si le pH est hors des limites acceptables.
+      float ph = id(ph_ezo).state;
+      return (ph < 7.8 || ph > 8.4);  // Retourne "actif" si hors limites.
+    device_class: problem  # Classe définissant le capteur comme un indicateur de problème.
+
+  # État optimal du pH
+  - platform: template  # Capteur basé sur un état calculé via un template.
+    name: "pH Optimal"  # Nom affiché dans l'interface utilisateur.
+    id: ph_optimal  # Identifiant unique pour ce capteur.
+    lambda: |-
+      // Vérifie si le pH est dans une plage optimale.
+      float ph = id(ph_ezo).state;
+      return (ph >= 7.8 && ph <= 8.4);  // Retourne "actif" si dans les limites.
+    device_class: safety  # Classe définissant le capteur comme un indicateur de sécurité.
+
+  # Lecture des données du capteur de pH
+  - platform: template
+    name: "pH - Lire"  # Nom du bouton.
+    id: read_ph  # Identifiant unique.
+    icon: mdi:read  # Icône affichée dans Home Assistant.
+    entity_category: "Config"  # Catégorie de configuration.
+    on_press:
+      then:
+        - lambda: |-
+            byte error;
+            id(ph_ezo).send_custom("R");
+            error = Wire.endTransmission();
+            if (error == 0) {
+              id(ph_ezo).send_custom("R");  // Envoie la commande pour lire la valeur.
+            } else {
+              ESP_LOGW("custom_ph_read", "Pas de Capteur PH à cette adresse: ${addPH}!!");
+
+  # Envoi de la commande sélectionnée au capteur pH
+  - platform: template
+    name: "pH - Commande sélectionnée envoyée"  # Nom du bouton.
+    id: send_selected_ph  # Identifiant unique.
+    entity_category: "Config"  # Catégorie de configuration.
+    on_press:
+      then:
+        - lambda: |-
+            if (id(select_command_ph).state == "Lire") {
+              id(ph_ezo).send_custom("R");
+            }
+            if (id(select_command_ph).state == "Information") {
+              id(ph_ezo).get_device_information();
+            }
+            if (id(select_command_ph).state == "Status") {
+              id(ph_ezo).send_custom("Status");
+            }
+            if (id(select_command_ph).state == "Obtenir ° Précision") {
+              id(ph_ezo).get_slope();
+            }
+            if (id(select_command_ph).state == "Vérifier calibration") {
+              id(ph_ezo).get_calibration();
+            }
+            if (id(select_command_ph).state == "Calibration @ moyenne = 7") {
+              id(ph_ezo).set_calibration_point_mid(7.00);
+            }
+            if (id(select_command_ph).state == "Calibration @ basse = 4") {
+              id(ph_ezo).set_calibration_point_low(4.00);
+            }
+            if (id(select_command_ph).state == "Calibration @ haute = 10") {
+              id(ph_ezo).set_calibration_point_high(10.00);
+            }
+            if (id(select_command_ph).state == "Effacer calibration") {
+              id(ph_ezo).clear_calibration();
+            }
